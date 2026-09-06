@@ -77,10 +77,7 @@ public sealed class AudioCaptureManager : IDisposable
             }
 
             // 2. Configure Microphone Capture (kept completely separate)
-            bool enableMicrophone = (settings.AudioSource == AudioSourceMode.MicrophoneOnly ||
-                                     settings.AudioSource == AudioSourceMode.Both);
-
-            if (enableMicrophone)
+            if (settings.CaptureMicrophone)
             {
                 Microphone.SetDevice(settings.MicrophoneDeviceId);
                 if (!Microphone.IsCapturing)

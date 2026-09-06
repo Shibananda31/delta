@@ -44,6 +44,7 @@ public class AppSettings
 
     // Audio capture settings
     public bool CaptureSystemAudio { get; set; } = false;
+    public bool CaptureMicrophone { get; set; } = false;
     public string? SystemAudioDeviceId { get; set; } = null; // null = Windows Default Output
     public AudioSourceMode AudioSource { get; set; } = AudioSourceMode.SystemAudioOnly;
     public string? MicrophoneDeviceId { get; set; } = null; // null = Windows Default Microphone

@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Downloads\\test -2\\MyOverlay\\MyOverlay\\MyOverlay.csproj": {}
+    "C:\\Users\\jenas\\Downloads\\delta power\\delta\\MyOverlay.csproj": {}
   },
   "projects": {
-    "D:\\Downloads\\test -2\\MyOverlay\\MyOverlay\\MyOverlay.csproj": {
+    "C:\\Users\\jenas\\Downloads\\delta power\\delta\\MyOverlay.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Downloads\\test -2\\MyOverlay\\MyOverlay\\MyOverlay.csproj",
+        "projectUniqueName": "C:\\Users\\jenas\\Downloads\\delta power\\delta\\MyOverlay.csproj",
         "projectName": "MyOverlay",
-        "projectPath": "D:\\Downloads\\test -2\\MyOverlay\\MyOverlay\\MyOverlay.csproj",
-        "packagesPath": "C:\\Users\\Shibananda\\.nuget\\packages\\",
-        "outputPath": "D:\\Downloads\\test -2\\MyOverlay\\MyOverlay\\obj\\",
+        "projectPath": "C:\\Users\\jenas\\Downloads\\delta power\\delta\\MyOverlay.csproj",
+        "packagesPath": "C:\\Users\\jenas\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\jenas\\Downloads\\delta power\\delta\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\Shibananda\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\jenas\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0-windows"

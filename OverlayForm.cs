@@ -324,6 +324,7 @@ public class OverlayForm : Form
 
         // Update Audio Capture Settings
         _audioManager.ApplySettings(settings);
+        _browserPanel.ApplySelectedMicrophone();
 
         if (IsHandleCreated)
         {

@@ -29,12 +29,13 @@ public class SettingsForm : Form
 
     // Controls - Audio Settings
     private CheckBox _chkCaptureSystemAudio = null!;
+    private Button _btnDisableSystemAudio = null!;
     private ComboBox _cboPlaybackDevice = null!;
-    private Button _btnRefreshAudioDevices = null!;
     private Label _lblSystemAudioStatus = null!;
     private ProgressBar _prgSystemAudioLevel = null!;
 
-    private ComboBox _cboAudioSource = null!;
+    private CheckBox _chkCaptureMicrophone = null!;
+    private Button _btnDisableMicrophone = null!;
     private ComboBox _cboMicrophoneDevice = null!;
     private Label _lblMicrophoneStatus = null!;
     private ProgressBar _prgMicrophoneLevel = null!;
@@ -546,25 +547,37 @@ public class SettingsForm : Form
     {
         tab.Padding = new Padding(12);
 
-        // 1. Group: System / Computer Audio Capture (WASAPI Loopback)
         var grpSystem = new GroupBox
         {
-            Text = "System / Computer Audio Capture (WASAPI Loopback)",
+            Text = "Output Audio",
             Location = new Point(12, 10),
             Size = new Size(525, 205)
         };
 
         _chkCaptureSystemAudio = new CheckBox
         {
-            Text = "Capture computer/system audio (WASAPI Loopback)",
+            Text = "Enable Output",
             Font = new Font("Segoe UI", 9.5f, FontStyle.Bold),
             Location = new Point(15, 24),
             AutoSize = true
         };
 
+        _btnDisableSystemAudio = new Button
+        {
+            Text = "Disable Output",
+            Location = new Point(390, 20),
+            Width = 120,
+            Height = 27
+        };
+        _btnDisableSystemAudio.Click += (s, e) =>
+        {
+            _chkCaptureSystemAudio.Checked = false;
+            ApplySettings(false);
+        };
+
         var lblPlaybackDev = new Label
         {
-            Text = "Audio Output / Playback Device (Speakers, Wired Earphones, USB/Bluetooth):",
+            Text = "Output device:",
             Location = new Point(15, 54),
             AutoSize = true
         };
@@ -577,18 +590,9 @@ public class SettingsForm : Form
             Font = new Font("Segoe UI", 9f)
         };
 
-        _btnRefreshAudioDevices = new Button
-        {
-            Text = "🔄 Refresh",
-            Location = new Point(418, 74),
-            Width = 92,
-            Height = 27
-        };
-        _btnRefreshAudioDevices.Click += (s, e) => PopulateAudioDeviceDropdowns();
-
         var lblLevelTitle = new Label
         {
-            Text = "Live System Audio Output Level:",
+            Text = "Output level:",
             Location = new Point(15, 110),
             AutoSize = true
         };
@@ -616,7 +620,7 @@ public class SettingsForm : Form
         {
             bool enabled = _chkCaptureSystemAudio.Checked;
             _cboPlaybackDevice.Enabled = enabled;
-            _btnRefreshAudioDevices.Enabled = enabled;
+            _btnDisableSystemAudio.Enabled = enabled;
             if (!enabled)
             {
                 _prgSystemAudioLevel.Value = 0;
@@ -625,66 +629,68 @@ public class SettingsForm : Form
         };
 
         grpSystem.Controls.Add(_chkCaptureSystemAudio);
+        grpSystem.Controls.Add(_btnDisableSystemAudio);
         grpSystem.Controls.Add(lblPlaybackDev);
         grpSystem.Controls.Add(_cboPlaybackDevice);
-        grpSystem.Controls.Add(_btnRefreshAudioDevices);
         grpSystem.Controls.Add(lblLevelTitle);
         grpSystem.Controls.Add(_prgSystemAudioLevel);
         grpSystem.Controls.Add(_lblSystemAudioStatus);
         tab.Controls.Add(grpSystem);
 
-        // 2. Group: Voice / Speech-to-Text Audio Source Pipeline
-        var grpPipeline = new GroupBox
+        var grpMicrophone = new GroupBox
         {
-            Text = "Voice / Transcription Audio Source Pipeline",
+            Text = "Input Audio",
             Location = new Point(12, 222),
             Size = new Size(525, 185)
         };
 
-        var lblPipelineDesc = new Label
+        _chkCaptureMicrophone = new CheckBox
         {
-            Text = "Select audio input source for voice transcription & speech processing:",
-            Location = new Point(15, 22),
+            Text = "Enable Input",
+            Font = new Font("Segoe UI", 9.5f, FontStyle.Bold),
+            Location = new Point(15, 24),
             AutoSize = true
         };
 
-        _cboAudioSource = new ComboBox
+        _btnDisableMicrophone = new Button
         {
-            DropDownStyle = ComboBoxStyle.DropDownList,
-            Location = new Point(15, 43),
-            Width = 495,
-            Font = new Font("Segoe UI", 9f)
+            Text = "Disable Input",
+            Location = new Point(390, 20),
+            Width = 120,
+            Height = 27
         };
-        _cboAudioSource.Items.Add("Computer / System Audio (WASAPI Loopback)");
-        _cboAudioSource.Items.Add("Microphone");
-        _cboAudioSource.Items.Add("Both (Computer Audio + Microphone)");
+        _btnDisableMicrophone.Click += (s, e) =>
+        {
+            _chkCaptureMicrophone.Checked = false;
+            ApplySettings(false);
+        };
 
         var lblMicDev = new Label
         {
-            Text = "Microphone Device (Separate input source):",
-            Location = new Point(15, 75),
+            Text = "Input device:",
+            Location = new Point(15, 54),
             AutoSize = true
         };
 
         _cboMicrophoneDevice = new ComboBox
         {
             DropDownStyle = ComboBoxStyle.DropDownList,
-            Location = new Point(15, 96),
+            Location = new Point(15, 75),
             Width = 495,
             Font = new Font("Segoe UI", 9f)
         };
 
         var lblMicLevelTitle = new Label
         {
-            Text = "Live Microphone Input Level:",
-            Location = new Point(15, 126),
+            Text = "Input level:",
+            Location = new Point(15, 110),
             AutoSize = true
         };
 
         _prgMicrophoneLevel = new ProgressBar
         {
-            Location = new Point(15, 146),
-            Width = 360,
+            Location = new Point(15, 130),
+            Width = 495,
             Height = 16,
             Minimum = 0,
             Maximum = 100,
@@ -694,31 +700,31 @@ public class SettingsForm : Form
         _lblMicrophoneStatus = new Label
         {
             Text = "Status: Idle",
-            Location = new Point(382, 146),
-            Size = new Size(130, 18),
+            Location = new Point(15, 153),
+            Size = new Size(495, 22),
             Font = new Font("Segoe UI", 8.5f),
             ForeColor = Color.DimGray
         };
 
-        _cboAudioSource.SelectedIndexChanged += (s, e) =>
+        _chkCaptureMicrophone.CheckedChanged += (s, e) =>
         {
-            bool micActive = (_cboAudioSource.SelectedIndex == 1 || _cboAudioSource.SelectedIndex == 2);
-            _cboMicrophoneDevice.Enabled = micActive;
-            if (!micActive)
+            _cboMicrophoneDevice.Enabled = _chkCaptureMicrophone.Checked;
+            _btnDisableMicrophone.Enabled = _chkCaptureMicrophone.Checked;
+            if (!_chkCaptureMicrophone.Checked)
             {
                 _prgMicrophoneLevel.Value = 0;
                 _lblMicrophoneStatus.Text = "Status: Disabled";
             }
         };
 
-        grpPipeline.Controls.Add(lblPipelineDesc);
-        grpPipeline.Controls.Add(_cboAudioSource);
-        grpPipeline.Controls.Add(lblMicDev);
-        grpPipeline.Controls.Add(_cboMicrophoneDevice);
-        grpPipeline.Controls.Add(lblMicLevelTitle);
-        grpPipeline.Controls.Add(_prgMicrophoneLevel);
-        grpPipeline.Controls.Add(_lblMicrophoneStatus);
-        tab.Controls.Add(grpPipeline);
+        grpMicrophone.Controls.Add(_chkCaptureMicrophone);
+        grpMicrophone.Controls.Add(_btnDisableMicrophone);
+        grpMicrophone.Controls.Add(lblMicDev);
+        grpMicrophone.Controls.Add(_cboMicrophoneDevice);
+        grpMicrophone.Controls.Add(lblMicLevelTitle);
+        grpMicrophone.Controls.Add(_prgMicrophoneLevel);
+        grpMicrophone.Controls.Add(_lblMicrophoneStatus);
+        tab.Controls.Add(grpMicrophone);
     }
 
     private void PopulateAudioDeviceDropdowns()
@@ -810,10 +816,11 @@ public class SettingsForm : Form
                 if (!IsDisposed && _prgSystemAudioLevel != null && _prgSystemAudioLevel.IsHandleCreated)
                 {
                     _prgSystemAudioLevel.Value = Math.Clamp((int)(level * 100), 0, 100);
+                    _prgSystemAudioLevel.ForeColor = GetLevelColor(level);
                 }
             });
         }
-        catch {}
+        catch { }
     }
 
     private void OnSystemAudioStatusChanged(object? sender, string status)
@@ -829,7 +836,7 @@ public class SettingsForm : Form
                 }
             });
         }
-        catch {}
+        catch { }
     }
 
     private void OnMicrophoneLevelChanged(object? sender, float level)
@@ -842,10 +849,19 @@ public class SettingsForm : Form
                 if (!IsDisposed && _prgMicrophoneLevel != null && _prgMicrophoneLevel.IsHandleCreated)
                 {
                     _prgMicrophoneLevel.Value = Math.Clamp((int)(level * 100), 0, 100);
+                    _prgMicrophoneLevel.ForeColor = GetLevelColor(level);
                 }
             });
         }
-        catch {}
+        catch { }
+    }
+
+    private static Color GetLevelColor(float level)
+    {
+        if (level >= 0.9f) return Color.Red;
+        if (level >= 0.7f) return Color.Orange;
+        if (level >= 0.4f) return Color.Gold;
+        return Color.Green;
     }
 
     private void OnMicrophoneStatusChanged(object? sender, string status)
@@ -861,7 +877,7 @@ public class SettingsForm : Form
                 }
             });
         }
-        catch {}
+        catch { }
     }
 
     private void OnAudioDevicesChanged(object? sender, EventArgs e)
@@ -871,7 +887,7 @@ public class SettingsForm : Form
         {
             BeginInvoke(PopulateAudioDeviceDropdowns);
         }
-        catch {}
+        catch { }
     }
 
     protected override void OnFormClosed(FormClosedEventArgs e)
@@ -921,25 +937,14 @@ public class SettingsForm : Form
         // Audio Settings
         _chkCaptureSystemAudio.Checked = _settings.CaptureSystemAudio;
         _cboPlaybackDevice.Enabled = _settings.CaptureSystemAudio;
-        _btnRefreshAudioDevices.Enabled = _settings.CaptureSystemAudio;
+        _btnDisableSystemAudio.Enabled = _settings.CaptureSystemAudio;
 
         PopulateAudioDeviceDropdowns();
 
-        switch (_settings.AudioSource)
-        {
-            case AudioSourceMode.SystemAudioOnly:
-                _cboAudioSource.SelectedIndex = 0;
-                break;
-            case AudioSourceMode.MicrophoneOnly:
-                _cboAudioSource.SelectedIndex = 1;
-                break;
-            case AudioSourceMode.Both:
-                _cboAudioSource.SelectedIndex = 2;
-                break;
-        }
-
-        bool micActive = (_settings.AudioSource == AudioSourceMode.MicrophoneOnly || _settings.AudioSource == AudioSourceMode.Both);
+        bool micActive = _settings.CaptureMicrophone || _settings.AudioSource != AudioSourceMode.SystemAudioOnly;
+        _chkCaptureMicrophone.Checked = micActive;
         _cboMicrophoneDevice.Enabled = micActive;
+        _btnDisableMicrophone.Enabled = micActive;
 
         if (_overlay.AudioManager.SystemAudio.IsCapturing)
         {
@@ -982,22 +987,10 @@ public class SettingsForm : Form
 
         // Audio Settings
         _settings.CaptureSystemAudio = _chkCaptureSystemAudio.Checked;
+        _settings.CaptureMicrophone = _chkCaptureMicrophone.Checked;
 
         var selectedPlayback = _cboPlaybackDevice.SelectedItem as AudioDeviceInfo;
         _settings.SystemAudioDeviceId = (selectedPlayback == null || selectedPlayback.Id == "default") ? null : selectedPlayback.Id;
-
-        switch (_cboAudioSource.SelectedIndex)
-        {
-            case 0:
-                _settings.AudioSource = AudioSourceMode.SystemAudioOnly;
-                break;
-            case 1:
-                _settings.AudioSource = AudioSourceMode.MicrophoneOnly;
-                break;
-            case 2:
-                _settings.AudioSource = AudioSourceMode.Both;
-                break;
-        }
 
         var selectedMic = _cboMicrophoneDevice.SelectedItem as AudioDeviceInfo;
         _settings.MicrophoneDeviceId = (selectedMic == null || selectedMic.Id == "default") ? null : selectedMic.Id;

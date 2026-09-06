@@ -287,22 +287,14 @@ public sealed class SystemAudioCapture : IDisposable, IMMNotificationClient
                     targetDevice = _deviceEnumerator.GetDevice(_selectedDeviceId!);
                     if (targetDevice.State != DeviceState.Active)
                     {
-                        NotifyStatus($"Selected device '{targetDevice.FriendlyName}' is not active ({targetDevice.State}). Falling back to default output.");
-                        targetDevice = _deviceEnumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
+                        NotifyError(new InvalidOperationException($"Selected output device '{targetDevice.FriendlyName}' is not active ({targetDevice.State})."));
+                        targetDevice = null;
                     }
                 }
                 catch (Exception ex)
                 {
-                    NotifyStatus($"Failed to open selected device: {ex.Message}. Falling back to default output.");
-                    try
-                    {
-                        targetDevice = _deviceEnumerator.GetDefaultAudioEndpoint(DataFlow.Render, Role.Multimedia);
-                    }
-                    catch (Exception innerEx)
-                    {
-                        NotifyError(new InvalidOperationException("No playback device available: " + innerEx.Message, innerEx));
-                        return;
-                    }
+                    NotifyError(new InvalidOperationException($"Cannot open selected output device (ID: {_selectedDeviceId}): {ex.Message}", ex));
+                    targetDevice = null;
                 }
             }
 
@@ -493,17 +485,20 @@ public sealed class SystemAudioCapture : IDisposable, IMMNotificationClient
 
         try
         {
-            if (format != null && (format.Encoding == WaveFormatEncoding.IeeeFloat || format.BitsPerSample == 32))
+            if (format != null && format.Encoding == WaveFormatEncoding.IeeeFloat)
             {
-                // 32-bit IEEE Float format (standard WASAPI shared-mode mix format)
+                // IEEE float samples
                 int sampleCount = bytesRecorded / 4;
                 for (int i = 0; i < sampleCount; i++)
                 {
                     int offset = i * 4;
                     if (offset + 4 > bytesRecorded) break;
                     float sample = BitConverter.ToSingle(buffer, offset);
-                    float abs = Math.Abs(sample);
-                    if (abs > max) max = abs;
+                    if (!float.IsNaN(sample) && !float.IsInfinity(sample))
+                    {
+                        float abs = Math.Abs(sample);
+                        if (abs > max) max = abs;
+                    }
                 }
             }
             else if (format != null && format.BitsPerSample == 16)
@@ -527,26 +522,29 @@ public sealed class SystemAudioCapture : IDisposable, IMMNotificationClient
                 {
                     int offset = i * 3;
                     if (offset + 3 > bytesRecorded) break;
-                    int sample = (buffer[offset] << 8) | (buffer[offset + 1] << 16) | (buffer[offset + 2] << 24);
+                    int sample = buffer[offset] | (buffer[offset + 1] << 8) | (buffer[offset + 2] << 16);
+                    if ((sample & 0x00800000) != 0) sample |= unchecked((int)0xFF000000);
+                    float abs = Math.Abs(sample / 8388608.0f);
+                    if (abs > max) max = abs;
+                }
+            }
+            else if (format != null && format.BitsPerSample == 32)
+            {
+                // 32-bit signed PCM (do not interpret integer samples as floats)
+                int sampleCount = bytesRecorded / 4;
+                for (int i = 0; i < sampleCount; i++)
+                {
+                    int offset = i * 4;
+                    if (offset + 4 > bytesRecorded) break;
+                    int sample = BitConverter.ToInt32(buffer, offset);
                     float abs = Math.Abs(sample / 2147483648.0f);
                     if (abs > max) max = abs;
                 }
             }
             else
             {
-                // Fallback default: try 32-bit float
-                int sampleCount = bytesRecorded / 4;
-                for (int i = 0; i < sampleCount; i++)
-                {
-                    int offset = i * 4;
-                    if (offset + 4 > bytesRecorded) break;
-                    float sample = BitConverter.ToSingle(buffer, offset);
-                    if (!float.IsNaN(sample) && !float.IsInfinity(sample))
-                    {
-                        float abs = Math.Abs(sample);
-                        if (abs > max) max = abs;
-                    }
-                }
+                // Unknown formats cannot be decoded reliably.
+                return 0.0f;
             }
         }
         catch

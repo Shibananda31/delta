@@ -425,7 +425,20 @@ public class BrowserPanel : UserControl
         }
 
         string url = string.IsNullOrWhiteSpace(initialUrl) ? _settings.BrowserHomePage : initialUrl;
-        var tab = new BrowserTab();
+        string? selectedMicrophoneName = null;
+        if (!string.IsNullOrWhiteSpace(_settings.MicrophoneDeviceId))
+        {
+            foreach (var device in MicrophoneAudioCapture.GetCaptureDevices())
+            {
+                if (device.Id.Equals(_settings.MicrophoneDeviceId, StringComparison.OrdinalIgnoreCase))
+                {
+                    selectedMicrophoneName = device.Name;
+                    break;
+                }
+            }
+        }
+
+        var tab = new BrowserTab(selectedMicrophoneName);
 
         _tabs.Add(tab);
 
@@ -500,6 +513,27 @@ public class BrowserPanel : UserControl
         _txtAddress.Text = tab.CurrentUrl;
         _btnBack.Enabled = tab.CanGoBack;
         _btnForward.Enabled = tab.CanGoForward;
+    }
+
+    public void ApplySelectedMicrophone()
+    {
+        string? selectedMicrophoneName = null;
+        if (!string.IsNullOrWhiteSpace(_settings.MicrophoneDeviceId))
+        {
+            foreach (var device in MicrophoneAudioCapture.GetCaptureDevices())
+            {
+                if (device.Id.Equals(_settings.MicrophoneDeviceId, StringComparison.OrdinalIgnoreCase))
+                {
+                    selectedMicrophoneName = device.Name;
+                    break;
+                }
+            }
+        }
+
+        foreach (var tab in _tabs)
+        {
+            _ = tab.SetSelectedMicrophoneAsync(selectedMicrophoneName);
+        }
     }
 
     public void CloseTab(BrowserTab tab)

@@ -23,9 +23,11 @@ public class BrowserTab : IDisposable
     private bool _isInitializing;
     private bool _isInitialized;
     private string? _pendingUrl;
+    private string? _selectedMicrophoneName;
 
-    public BrowserTab()
+    public BrowserTab(string? selectedMicrophoneName = null)
     {
+        _selectedMicrophoneName = selectedMicrophoneName;
         WebView = new WebView2
         {
             Dock = DockStyle.Fill,
@@ -87,6 +89,8 @@ public class BrowserTab : IDisposable
             settings.IsStatusBarEnabled = false;
             settings.IsZoomControlEnabled = true;
 
+            await InstallMicrophoneSelectionScriptAsync();
+
             // Hook navigation events
             WebView.CoreWebView2.NavigationStarting += OnNavigationStarting;
             WebView.CoreWebView2.NavigationCompleted += OnNavigationCompleted;
@@ -126,6 +130,61 @@ public class BrowserTab : IDisposable
             Debug.WriteLine($"[MyOverlay] WebView2 tab initialization failed: {ex}");
             throw;
         }
+    }
+
+    private async Task InstallMicrophoneSelectionScriptAsync()
+    {
+        if (WebView.CoreWebView2 == null || string.IsNullOrWhiteSpace(_selectedMicrophoneName)) return;
+
+        string deviceName = System.Text.Json.JsonSerializer.Serialize(_selectedMicrophoneName);
+        string script = """
+            (() => {
+                const selectedName = __SELECTED_DEVICE_NAME__;
+                const mediaDevices = navigator.mediaDevices;
+                if (!mediaDevices || !mediaDevices.getUserMedia || mediaDevices.__myOverlayInputHooked) return;
+
+                const nativeGetUserMedia = mediaDevices.getUserMedia.bind(mediaDevices);
+                mediaDevices.getUserMedia = async (constraints) => {
+                    if (!constraints || !constraints.audio || !selectedName) {
+                        return nativeGetUserMedia(constraints);
+                    }
+
+                    let devices = await mediaDevices.enumerateDevices();
+                    let selected = devices.find(device =>
+                        device.kind === 'audioinput' && device.label === selectedName);
+
+                    if (!selected) {
+                        const permissionStream = await nativeGetUserMedia({ audio: true, video: false });
+                        permissionStream.getTracks().forEach(track => track.stop());
+                        devices = await mediaDevices.enumerateDevices();
+                        selected = devices.find(device =>
+                            device.kind === 'audioinput' && device.label === selectedName);
+                    }
+
+                    if (!selected) {
+                        throw new DOMException('The selected microphone is unavailable in WebView2.', 'NotFoundError');
+                    }
+
+                    const audio = constraints.audio === true
+                        ? { deviceId: { exact: selected.deviceId } }
+                        : { ...constraints.audio, deviceId: { exact: selected.deviceId } };
+                    return nativeGetUserMedia({ ...constraints, audio });
+                };
+                mediaDevices.__myOverlayInputHooked = true;
+            })();
+            """;
+        script = script.Replace("__SELECTED_DEVICE_NAME__", deviceName, StringComparison.Ordinal);
+
+        await WebView.CoreWebView2.AddScriptToExecuteOnDocumentCreatedAsync(script);
+    }
+
+    public async Task SetSelectedMicrophoneAsync(string? selectedMicrophoneName)
+    {
+        _selectedMicrophoneName = selectedMicrophoneName;
+        if (!_isInitialized || WebView.CoreWebView2 == null) return;
+
+        await InstallMicrophoneSelectionScriptAsync();
+        WebView.Reload();
     }
 
     public void Navigate(string url)

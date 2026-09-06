@@ -191,7 +191,7 @@ public sealed class MicrophoneAudioCapture : IDisposable
         if (needsRestart)
         {
             NotifyStatus($"Switching to selected microphone (device ID: {newDeviceId ?? "default"})...");
-            Task.Run(RestartCaptureInternal);
+            RestartCaptureInternal();
         }
     }
 
@@ -266,12 +266,12 @@ public sealed class MicrophoneAudioCapture : IDisposable
                 try
                 {
                     targetDevice = _deviceEnumerator.GetDevice(_selectedDeviceId!);
-                    
+
                     // Verify the device is actually active
                     if (targetDevice.State != DeviceState.Active)
                     {
-                        NotifyStatus($"Selected microphone '{targetDevice.FriendlyName}' is not currently active. Falling back to default.");
-                        targetDevice = null; // Force fallback
+                        NotifyError(new InvalidOperationException($"Selected microphone '{targetDevice.FriendlyName}' is not currently active."));
+                        targetDevice = null;
                     }
                     else
                     {
@@ -280,23 +280,11 @@ public sealed class MicrophoneAudioCapture : IDisposable
                 }
                 catch (Exception ex)
                 {
-                    NotifyStatus($"Cannot find or access selected microphone (ID: {_selectedDeviceId}). Error: {ex.Message}. Falling back to default.");
-                    targetDevice = null; // Force fallback
+                    NotifyError(new InvalidOperationException($"Cannot open selected microphone (ID: {_selectedDeviceId}): {ex.Message}", ex));
+                    targetDevice = null;
                 }
 
-                // Only fall back to default if the selected device couldn't be used
-                if (targetDevice == null)
-                {
-                    try
-                    {
-                        targetDevice = _deviceEnumerator.GetDefaultAudioEndpoint(DataFlow.Capture, Role.Communications);
-                    }
-                    catch (Exception innerEx)
-                    {
-                        NotifyError(new InvalidOperationException("No microphone available: " + innerEx.Message, innerEx));
-                        return;
-                    }
-                }
+                if (targetDevice == null) return;
             }
 
             if (targetDevice == null)
