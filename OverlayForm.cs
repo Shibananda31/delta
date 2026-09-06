@@ -108,7 +108,7 @@ public class OverlayForm : Form
             ForeColor = Color.FromArgb(165, 180, 252),
             AutoSize = true,
             Location = new Point(8, 6),
-            Cursor = Cursors.SizeAll
+            Cursor = Cursors.Default
         };
         _lblTitle.MouseDown += (s, e) =>
         {
@@ -629,7 +629,7 @@ public class OverlayForm : Form
             BackColor = Color.FromArgb(32, 32, 40),
             FlatStyle = FlatStyle.Flat,
             Size = new Size(24, 22),
-            Cursor = Cursors.Hand
+            Cursor = Cursors.Default
         };
         btn.FlatAppearance.BorderSize = 0;
         btn.FlatAppearance.MouseOverBackColor = Color.FromArgb(60, 60, 75);

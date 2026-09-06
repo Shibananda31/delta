@@ -31,10 +31,12 @@ public class BrowserTab : IDisposable
         WebView = new WebView2
         {
             Dock = DockStyle.Fill,
-            Visible = false
+            Visible = false,
+            Cursor = Cursors.Default
         };
 
         WebView.KeyDown += OnWebViewKeyDown;
+        WebView.CursorChanged += OnWebViewCursorChanged;
     }
 
     public async Task InitializeAsync(CoreWebView2Environment env, string initialUrl)
@@ -89,6 +91,7 @@ public class BrowserTab : IDisposable
             settings.IsStatusBarEnabled = false;
             settings.IsZoomControlEnabled = true;
 
+            await InstallDefaultCursorStyleAsync();
             await InstallMicrophoneSelectionScriptAsync();
 
             // Hook navigation events
@@ -130,6 +133,38 @@ public class BrowserTab : IDisposable
             Debug.WriteLine($"[MyOverlay] WebView2 tab initialization failed: {ex}");
             throw;
         }
+    }
+
+    private async Task InstallDefaultCursorStyleAsync()
+    {
+        if (WebView.CoreWebView2 == null) return;
+
+        const string script = """
+            (() => {
+                const styleId = '__myOverlayDefaultCursor';
+                const installStyle = () => {
+                    if (document.getElementById(styleId)) return;
+
+                    const style = document.createElement('style');
+                    style.id = styleId;
+                    style.textContent = `
+                        *, *::before, *::after {
+                            cursor: default !important;
+                        }
+                    `;
+
+                    (document.head || document.documentElement).appendChild(style);
+                };
+
+                installStyle();
+                new MutationObserver(installStyle).observe(document.documentElement, {
+                    childList: true,
+                    subtree: true
+                });
+            })();
+            """;
+
+        await WebView.CoreWebView2.AddScriptToExecuteOnDocumentCreatedAsync(script);
     }
 
     private async Task InstallMicrophoneSelectionScriptAsync()
@@ -176,6 +211,14 @@ public class BrowserTab : IDisposable
         script = script.Replace("__SELECTED_DEVICE_NAME__", deviceName, StringComparison.Ordinal);
 
         await WebView.CoreWebView2.AddScriptToExecuteOnDocumentCreatedAsync(script);
+    }
+
+    private void OnWebViewCursorChanged(object? sender, EventArgs e)
+    {
+        if (WebView.Cursor != Cursors.Default)
+        {
+            WebView.Cursor = Cursors.Default;
+        }
     }
 
     public async Task SetSelectedMicrophoneAsync(string? selectedMicrophoneName)
@@ -433,6 +476,7 @@ public class BrowserTab : IDisposable
     {
         if (_isDisposed) return;
         _isDisposed = true;
+        WebView.CursorChanged -= OnWebViewCursorChanged;
 
         if (_controller != null)
         {

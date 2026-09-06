@@ -85,7 +85,7 @@ public class BrowserPanel : UserControl
             FlatStyle = FlatStyle.Flat,
             Size = new Size(30, 26),
             Margin = new Padding(2, 2, 2, 2),
-            Cursor = Cursors.Hand
+            Cursor = Cursors.Default
         };
         _btnNewTab.FlatAppearance.BorderSize = 0;
         _btnNewTab.Click += (s, e) => AddTab();
@@ -348,7 +348,7 @@ public class BrowserPanel : UserControl
             FlatStyle = FlatStyle.Flat,
             Size = new Size(320, 38),
             Location = new Point(90, 170),
-            Cursor = Cursors.Hand
+            Cursor = Cursors.Default
         };
         btnDownload.FlatAppearance.BorderSize = 0;
         btnDownload.Click += (s, e) =>
@@ -372,7 +372,7 @@ public class BrowserPanel : UserControl
             FlatStyle = FlatStyle.Flat,
             Size = new Size(160, 38),
             Location = new Point(420, 170),
-            Cursor = Cursors.Hand
+            Cursor = Cursors.Default
         };
         btnRetry.FlatAppearance.BorderSize = 0;
         btnRetry.Click += async (s, e) =>
@@ -619,7 +619,7 @@ public class BrowserPanel : UserControl
             Width = 150,
             BackColor = Color.FromArgb(24, 24, 30),
             Margin = new Padding(2, 2, 2, 2),
-            Cursor = Cursors.Hand
+            Cursor = Cursors.Default
         };
 
         var lblTitle = new Label
@@ -630,7 +630,7 @@ public class BrowserPanel : UserControl
             AutoEllipsis = true,
             Location = new Point(6, 5),
             Size = new Size(118, 18),
-            Cursor = Cursors.Hand
+            Cursor = Cursors.Default
         };
 
         var btnClose = new Button
@@ -642,7 +642,7 @@ public class BrowserPanel : UserControl
             FlatStyle = FlatStyle.Flat,
             Size = new Size(18, 18),
             Location = new Point(126, 4),
-            Cursor = Cursors.Hand
+            Cursor = Cursors.Default
         };
         btnClose.FlatAppearance.BorderSize = 0;
         btnClose.FlatAppearance.MouseOverBackColor = Color.FromArgb(239, 68, 68);
@@ -847,7 +847,7 @@ public class BrowserPanel : UserControl
             BackColor = Color.FromArgb(36, 36, 46),
             FlatStyle = FlatStyle.Flat,
             Size = new Size(28, 26),
-            Cursor = Cursors.Hand
+            Cursor = Cursors.Default
         };
         btn.FlatAppearance.BorderSize = 0;
         btn.FlatAppearance.MouseOverBackColor = Color.FromArgb(60, 60, 75);
@@ -869,7 +869,7 @@ public class BrowserPanel : UserControl
             BackColor = Color.FromArgb(60, 60, 72),
             FlatStyle = FlatStyle.Flat,
             Size = new Size(48, 24),
-            Cursor = Cursors.Hand
+            Cursor = Cursors.Default
         };
         btn.FlatAppearance.BorderSize = 0;
         btn.Click += onClick;
