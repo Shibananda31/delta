@@ -1,0 +1,14 @@
+C:\myFolder\Projects\Windows APPS\browser\MyOverlay\bin\Debug\net10.0-windows\MyOverlay.exe
+C:\myFolder\Projects\Windows APPS\browser\MyOverlay\bin\Debug\net10.0-windows\MyOverlay.deps.json
+C:\myFolder\Projects\Windows APPS\browser\MyOverlay\bin\Debug\net10.0-windows\MyOverlay.runtimeconfig.json
+C:\myFolder\Projects\Windows APPS\browser\MyOverlay\bin\Debug\net10.0-windows\MyOverlay.dll
+C:\myFolder\Projects\Windows APPS\browser\MyOverlay\bin\Debug\net10.0-windows\MyOverlay.pdb
+C:\myFolder\Projects\Windows APPS\browser\MyOverlay\obj\Debug\net10.0-windows\MyOverlay.GeneratedMSBuildEditorConfig.editorconfig
+C:\myFolder\Projects\Windows APPS\browser\MyOverlay\obj\Debug\net10.0-windows\MyOverlay.AssemblyInfoInputs.cache
+C:\myFolder\Projects\Windows APPS\browser\MyOverlay\obj\Debug\net10.0-windows\MyOverlay.AssemblyInfo.cs
+C:\myFolder\Projects\Windows APPS\browser\MyOverlay\obj\Debug\net10.0-windows\MyOverlay.csproj.CoreCompileInputs.cache
+C:\myFolder\Projects\Windows APPS\browser\MyOverlay\obj\Debug\net10.0-windows\MyOverlay.dll
+C:\myFolder\Projects\Windows APPS\browser\MyOverlay\obj\Debug\net10.0-windows\refint\MyOverlay.dll
+C:\myFolder\Projects\Windows APPS\browser\MyOverlay\obj\Debug\net10.0-windows\MyOverlay.pdb
+C:\myFolder\Projects\Windows APPS\browser\MyOverlay\obj\Debug\net10.0-windows\MyOverlay.genruntimeconfig.cache
+C:\myFolder\Projects\Windows APPS\browser\MyOverlay\obj\Debug\net10.0-windows\ref\MyOverlay.dll
